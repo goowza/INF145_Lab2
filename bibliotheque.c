@@ -24,6 +24,8 @@ int main()
 	initialiser_bibliotheque(&bibli);
 	simuler_lire_fichier(&bibli);
 	afficher_bibliotheque(&bibli);
+	modifier_livre(&bibli.livres[5][0]);
+	afficher_bibliotheque(&bibli);
 	system("PAUSE");
     /*do
     {
@@ -211,6 +213,20 @@ void afficher_info_livre(t_livre * pLivre)
 	printf("\nEmprunte : %d\n", pLivre->bEmprunte);
 	printf("-------------------------------------------------------------------");
 	printf("\n");
+}
+
+void modifier_livre(t_livre * pLivre)
+{
+	printf("Entrez le nouveau genre du livre : \n");
+	scanf("%d",&pLivre->genre);
+	printf("Entrez le nouveau titre du livre : \n");
+	gets_s(pLivre->titre,TAILLE_TITRE); // Ne bloque pas :v
+	printf("Entrez le nouveau prenom de l'auteur : \n");
+	gets_s(pLivre->auteur_prenom,TAILLE_PRENOM);
+	printf("Entrez le nouveau nom de l'auteur : \n");
+	gets_s(pLivre->auteur_nom,TAILLE_NOM);
+	printf("Entrez le nouveau nombre de page : \n");
+	scanf("%d",&pLivre->nb_pages);
 }
 
 void sauvegarder_fichier(t_bibliotheque * pBibli)

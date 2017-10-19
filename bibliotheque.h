@@ -69,6 +69,8 @@ void gerer_retours(t_bibliotheque * pBibli);
 
 void afficher_info_livre(t_livre * pLivre);
 
+void modifier_livre(t_livre * pLivre);
+
 void retirer_sautligne(char * chaine);
 void super_pause();
 void afficher_menu();
