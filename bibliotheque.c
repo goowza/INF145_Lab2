@@ -24,8 +24,10 @@ int main()
 	initialiser_bibliotheque(&bibli);
 	simuler_lire_fichier(&bibli);
 	afficher_bibliotheque(&bibli);
-	modifier_livre(&bibli.livres[5][0]);
-	afficher_bibliotheque(&bibli);
+	generer_rapport(&bibli);
+	afficher_rapport(&bibli.rapport);
+	/*modifier_livre(&bibli.livres[5][0]);
+	afficher_bibliotheque(&bibli);*/
 	system("PAUSE");
     /*do
     {
@@ -81,7 +83,7 @@ void simuler_lire_fichier(t_bibliotheque * pBibli)
 	strcpy(livre1.auteur_nom, "Roy");
 	livre1.nb_pages = 252;
 	livre1.isbn = 369;
-	livre1.bEmprunte = DISPONIBLE;
+	livre1.bEmprunte = EMPRUNT;
 	pBibli->livres[INFORMATIQUE][pBibli->nb_livres[INFORMATIQUE]] = livre1;
 	pBibli->nb_livres[INFORMATIQUE]++;
 
@@ -91,7 +93,7 @@ void simuler_lire_fichier(t_bibliotheque * pBibli)
 	strcpy(livre2.auteur_nom, "Saulnier");
 	livre2.nb_pages = 355;
 	livre2.isbn = 1001;
-	livre2.bEmprunte = DISPONIBLE;
+	livre2.bEmprunte = EMPRUNT;
 	pBibli->livres[INFORMATIQUE][pBibli->nb_livres[INFORMATIQUE]] = livre2;
 	pBibli->nb_livres[INFORMATIQUE]++;
 
@@ -217,9 +219,13 @@ void afficher_info_livre(t_livre * pLivre)
 
 void modifier_livre(t_livre * pLivre)
 {
+	// Caractere permettant d'enlever le enter a la saisie du titre
+	char buffer;
+	
 	printf("Entrez le nouveau genre du livre : \n");
 	scanf("%d",&pLivre->genre);
 	printf("Entrez le nouveau titre du livre : \n");
+	gets_s(&buffer,1);
 	gets_s(pLivre->titre,TAILLE_TITRE); // Ne bloque pas :v
 	printf("Entrez le nouveau prenom de l'auteur : \n");
 	gets_s(pLivre->auteur_prenom,TAILLE_PRENOM);
@@ -256,7 +262,34 @@ void afficher_bibliotheque(t_bibliotheque * pBibli)
 
 void generer_rapport(t_bibliotheque *pBibli)
 {
+	int i,j;
+	int nb_livres_empruntes = 0;
+	int nb_livres = 0;
 
+	for (i = 0; i < NB_GENRES; i++)
+	{
+		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		{
+			if (pBibli->livres[i][j].bEmprunte != 0 )
+			{
+				nb_livres_empruntes++;
+			}
+			if (pBibli->livres[i][j].isbn != -1)
+			{
+				nb_livres++;
+			}
+		}
+	}
+	pBibli->rapport.nb_livres_empruntes = nb_livres_empruntes;
+	pBibli->rapport.nb_livres = nb_livres;
+}
+
+void afficher_rapport(t_rapport *rapport)
+{
+	printf("#####################################\n");
+	printf("Nombre de livres : %d\n",rapport->nb_livres);
+	printf("Nombre de livres empruntes : %d\n",rapport->nb_livres_empruntes);
+	printf("#####################################\n");
 }
 
 void emprunter_livre(t_bibliotheque * pBibli)
