@@ -61,6 +61,8 @@ void trier_livres(t_bibliotheque * pBibli);
 
 void afficher_bibliotheque(t_bibliotheque * pBibli);
 
+void afficher_rapport(t_rapport *rapport);
+
 void generer_rapport(t_bibliotheque *pBibli);
 
 void emprunter_livre(t_bibliotheque * pBibli);
