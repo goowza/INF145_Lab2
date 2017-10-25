@@ -13,7 +13,7 @@
 
 #define MAX_ISBN		9999
 
-#define SIMULATION      1
+#define SIMULATION      0
 
 #define EMPRUNT         1
 #define DISPONIBLE      0
@@ -78,3 +78,4 @@ void super_pause();
 void afficher_menu();
 
 #endif
+
