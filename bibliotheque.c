@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
 #include "bibliotheque.h"
 #include <time.h>
 
@@ -20,52 +21,108 @@ int main()
 	// Initialisation de la bibliotheque
 	// ...
 	afficher_menu();
-	choix_menu = demander_choix_menu();
+	//choix_menu = demander_choix_menu();
 	initialiser_bibliotheque(&bibli);
-	simuler_lire_fichier(&bibli);
+	lire_fichier(&bibli);
 	afficher_bibliotheque(&bibli);
 	generer_rapport(&bibli);
 	afficher_rapport(&bibli.rapport);
-	/*modifier_livre(&bibli.livres[5][0]);
-	afficher_bibliotheque(&bibli);*/
+	modifier_livre(&bibli.livres[5][0]);
+	afficher_bibliotheque(&bibli);
 	system("PAUSE");
-    /*do
-    {
-		// Gestion du menu.
-        choix_menu = demander_choix_menu();
+	/*do
+	{
+	// Gestion du menu.
+	choix_menu = demander_choix_menu();
 
-        switch(choix_menu)
-        {
-            case 1: afficher_bibliotheque(&bibli); break;
-            case 2: lire_fichier(&bibli); break;
-            case 3: modifier_livre(&bibli); break;
-			case 4: retirer_livre(&bibli); break;
-            case 5: emprunter_livre(&bibli); break;
-            case 6: gerer_retours(&bibli); break;
-            case 7: generer_rapport(&bibli); break;
-            case 8: sauvegarder_fichier(&bibli); break;        
-			case 9: trier_livres(&bibli); break;
-			case 0: break; // Quitter.
-            default: break;
-        }
-    }while(choix_menu != 0);*/
-    
-    return EXIT_SUCCESS;
+	switch(choix_menu)
+	{
+	case 1: afficher_bibliotheque(&bibli); break;
+	case 2: lire_fichier(&bibli); break;
+	case 3: modifier_livre(&bibli); break;
+	case 4: retirer_livre(&bibli); break;
+	case 5: emprunter_livre(&bibli); break;
+	case 6: gerer_retours(&bibli); break;
+	case 7: generer_rapport(&bibli); break;
+	case 8: sauvegarder_fichier(&bibli); break;
+	case 9: trier_livres(&bibli); break;
+	case 0: break; // Quitter.
+	default: break;
+	}
+	}while(choix_menu != 0);*/
+
+	return EXIT_SUCCESS;
 }
 
 void lire_fichier(t_bibliotheque * pBibli)
 {
-	// ...
+	FILE *fentree;
+
+	// Variables permettant d'enregistrer un livre
+	int nb_livres;
+	t_genre genre;
+	char titre[TAILLE_TITRE];
+	char nom[TAILLE_NOM];
+	char prenom[TAILLE_PRENOM];
+	int nb_pages;
+	int isbn;
+	int emprunt;
+
+	// Variable permettant de sauter les lignes vides et les sauts de ligne
+	// lors de l'utilisation de fgets et fscanf
+	char char1;
 
 #if(SIMULATION == 1)
-    simuler_lire_fichier(pBibli);
-	
+	simuler_lire_fichier(pBibli);
+
 	// ...
 
 #else
-    
-	// ...
-    
+	fentree = fopen("biblio.txt", "r");
+	if (fentree == NULL)
+		printf("Erreur a l'ouverture du fichier\n");
+	else
+	{
+		fscanf(fentree, "%d", &nb_livres);
+		fscanf(fentree, "%c", &char1);
+
+		while (feof(fentree) != 1)
+		{
+			// Enregistrement des valeurs du fichier texte dans les variables
+			fscanf(fentree, "%d", &genre);
+			fscanf(fentree, "%c", &char1);
+			fgets(titre, TAILLE_TITRE, fentree);
+			fgets(prenom, TAILLE_PRENOM, fentree);
+			fgets(nom, TAILLE_NOM, fentree);
+			fscanf(fentree, "%d", &nb_pages);
+			fscanf(fentree, "%d", &isbn);
+			fscanf(fentree, "%d", &emprunt);
+
+			retirer_sautligne(titre);
+			retirer_sautligne(prenom);
+			retirer_sautligne(nom);
+
+			/*printf("%d\n", genre);
+			printf("%s\n", titre);
+			printf("%s ", prenom);
+			printf("%s\n", nom);
+			printf("%d\n", nb_pages);
+			printf("%d\n", isbn);
+			printf("%d\n", emprunt);*/
+
+			// Mise a jour d'un livre de la bibliotheque
+			pBibli->livres[genre][pBibli->nb_livres[genre]].genre = genre;
+			strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].titre, titre);
+			strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].auteur_prenom, prenom);
+			strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].auteur_nom, nom);
+			pBibli->livres[genre][pBibli->nb_livres[genre]].nb_pages = nb_pages;
+			pBibli->livres[genre][pBibli->nb_livres[genre]].isbn = isbn;
+			pBibli->livres[genre][pBibli->nb_livres[genre]].bEmprunte = emprunt;
+			pBibli->nb_livres[genre]++;
+		
+		}
+		fclose(fentree);
+	}
 #endif
 
 	// ...
@@ -83,7 +140,7 @@ void simuler_lire_fichier(t_bibliotheque * pBibli)
 	strcpy(livre1.auteur_nom, "Roy");
 	livre1.nb_pages = 252;
 	livre1.isbn = 369;
-	livre1.bEmprunte = EMPRUNT;
+	livre1.bEmprunte = DISPONIBLE;
 	pBibli->livres[INFORMATIQUE][pBibli->nb_livres[INFORMATIQUE]] = livre1;
 	pBibli->nb_livres[INFORMATIQUE]++;
 
@@ -93,7 +150,7 @@ void simuler_lire_fichier(t_bibliotheque * pBibli)
 	strcpy(livre2.auteur_nom, "Saulnier");
 	livre2.nb_pages = 355;
 	livre2.isbn = 1001;
-	livre2.bEmprunte = EMPRUNT;
+	livre2.bEmprunte = DISPONIBLE;
 	pBibli->livres[INFORMATIQUE][pBibli->nb_livres[INFORMATIQUE]] = livre2;
 	pBibli->nb_livres[INFORMATIQUE]++;
 
@@ -134,7 +191,7 @@ void retirer_sautligne(char * chaine)
 //-----------------------------------------------------------------------------
 void initialiser_bibliotheque(t_bibliotheque * pBibli)
 {
-	int i,j;
+	int i, j;
 
 	// Initialisation des compteurs de livres a 0
 	for (i = 0; i < NB_GENRES; i++)
@@ -209,7 +266,7 @@ void afficher_info_livre(t_livre * pLivre)
 	printf(pLivre->auteur_prenom);
 	printf(" ");
 	printf(pLivre->auteur_nom);
-	printf("\nGenre : %d",pLivre->genre);
+	printf("\nGenre : %d", pLivre->genre);
 	printf("\nPages : %d", pLivre->nb_pages);
 	printf("\nISBN : %d", pLivre->isbn);
 	printf("\nEmprunte : %d\n", pLivre->bEmprunte);
@@ -221,18 +278,18 @@ void modifier_livre(t_livre * pLivre)
 {
 	// Caractere permettant d'enlever le enter a la saisie du titre
 	char buffer;
-	
+
 	printf("Entrez le nouveau genre du livre : \n");
-	scanf("%d",&pLivre->genre);
+	scanf("%d", &pLivre->genre);
 	printf("Entrez le nouveau titre du livre : \n");
 	gets_s(&buffer,1);
-	gets_s(pLivre->titre,TAILLE_TITRE); // Ne bloque pas :v
+	gets_s(pLivre->titre, TAILLE_TITRE); // Ne bloque pas :v
 	printf("Entrez le nouveau prenom de l'auteur : \n");
-	gets_s(pLivre->auteur_prenom,TAILLE_PRENOM);
+	gets_s(pLivre->auteur_prenom, TAILLE_PRENOM);
 	printf("Entrez le nouveau nom de l'auteur : \n");
-	gets_s(pLivre->auteur_nom,TAILLE_NOM);
+	gets_s(pLivre->auteur_nom, TAILLE_NOM);
 	printf("Entrez le nouveau nombre de page : \n");
-	scanf("%d",&pLivre->nb_pages);
+	scanf("%d", &pLivre->nb_pages);
 }
 
 void sauvegarder_fichier(t_bibliotheque * pBibli)
@@ -247,7 +304,7 @@ void trier_livres(t_bibliotheque * pBibli)
 
 void afficher_bibliotheque(t_bibliotheque * pBibli)
 {
-	int i,j;
+	int i, j;
 	for (i = 0; i < NB_GENRES; i++)
 	{
 		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
@@ -262,7 +319,7 @@ void afficher_bibliotheque(t_bibliotheque * pBibli)
 
 void generer_rapport(t_bibliotheque *pBibli)
 {
-	int i,j;
+	int i, j;
 	int nb_livres_empruntes = 0;
 	int nb_livres = 0;
 
@@ -270,7 +327,7 @@ void generer_rapport(t_bibliotheque *pBibli)
 	{
 		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
 		{
-			if (pBibli->livres[i][j].bEmprunte != 0 )
+			if (pBibli->livres[i][j].bEmprunte != 0)
 			{
 				nb_livres_empruntes++;
 			}
@@ -287,8 +344,8 @@ void generer_rapport(t_bibliotheque *pBibli)
 void afficher_rapport(t_rapport *rapport)
 {
 	printf("#####################################\n");
-	printf("Nombre de livres : %d\n",rapport->nb_livres);
-	printf("Nombre de livres empruntes : %d\n",rapport->nb_livres_empruntes);
+	printf("Nombre de livres : %d\n", rapport->nb_livres);
+	printf("Nombre de livres empruntes : %d\n", rapport->nb_livres_empruntes);
 	printf("#####################################\n");
 }
 
