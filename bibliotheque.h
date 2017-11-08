@@ -1,7 +1,7 @@
 #ifndef BIBLIOTHEQUE_H
 #define BIBLIOTHEQUE_H
 
-//#include "t_pile.h"
+#include "t_pile.h"
 
 #define NB_LIVRES_MAX_RANGEE        100
 #define NB_GENRES                   6
@@ -71,7 +71,13 @@ void gerer_retours(t_bibliotheque * pBibli);
 
 void afficher_info_livre(t_livre * pLivre);
 
-void modifier_livre(t_livre * pLivre);
+void modifier_livre(t_bibliotheque * pBibli);
+
+void retirer_livre(t_bibliotheque * pBibli);
+
+int compter_livres(t_bibliotheque * pBibli);
+
+void gerer_lundi_matin_retours(t_bibliotheque * pBibli, t_pile * pPileRetours);
 
 void retirer_sautligne(char * chaine);
 void super_pause();
