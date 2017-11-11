@@ -1,3 +1,36 @@
+//  Auteur:		Yannick Roy
+//
+//  Modifié par : Paul Meis (MEIP12039708) 
+//				 (paul.meis.1@ens.etsmtl.ca)
+//				  Hervé Neugang (NEUR14027708) 
+//				 (rodrigu-herve.neugang-tchientche.1@ens.etsmtl.ca)
+
+//  Date : novembre 2017
+//
+//  Description : 
+//  Ce programme permet de gerer la banque de donnees d'une bibliotheque.
+//  Le programme offre plusieurs fonctionnalites de gestion :
+// 
+//  1) Afficher Bibliothèque:     Affiche tous les livres de la bibliothèque. 
+//  2) Lire Fichier Bibliothèque: Initialise la bibliothèque à partir d'un 
+//								  fichier texte.
+//  3) Modifier Livre:            Permet de modifier les informations (champs) 
+//								  d'un livre. 
+//  4) Retirer Livre:			  Permet de retirer un livre de la bibliothèque.
+//  5) Emprunter Livre:			  Permet d'emprunter temporairement un livre. 
+//  6) Retourner Livres:		  Permet de faire la gestion des livres 
+//								  empruntés et les retourner. 
+//  7) Générer Rapport:			  Génère un rapport sur le nombre de livres et 
+//								  emprunts. 
+//  8) Sauvegarder Bibliothèque:  Sauvegarde la bibliothèque dans un fichier 
+//								  texte. 
+//  9) Trier Livres :			  Permet de trier les livres dans la 
+//								  bibliothèque. 
+//  10) Quitter:				  Permet de quitter l'application.
+// 
+//  L'utilisateur navigue dans un menu pour choisir quelle action il desire 
+//  effectuer.
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
@@ -5,14 +38,12 @@
 #include <string.h>
 #include <conio.h>
 #include "bibliotheque.h"
-#include "t_pile.h"
 
 #include <time.h>
 
 int main()
 {
 	// Déclaration des variables.
-	// ...
 	int choix_menu;
 
 	t_bibliotheque bibli;
@@ -21,56 +52,47 @@ int main()
 	srand(time(NULL));
 
 	// Initialisation de la bibliotheque
-	// ...
-	//afficher_menu();
-	//choix_menu = demander_choix_menu();
-	//initialiser_bibliotheque(&bibli);
-	//lire_fichier(&bibli);
-	////afficher_bibliotheque(&bibli);
-	//generer_rapport(&bibli);
-	////afficher_rapport(&bibli.rapport);
-	//retirer_livre(&bibli);
-	//emprunter_livre(&bibli);
-	//modifier_livre(&bibli);
-	///*generer_rapport(&bibli);
-	//afficher_rapport(&bibli.rapport);*/
-	//
-	////afficher_bibliotheque(&bibli);
-	//sauvegarder_fichier(&bibli);
-	//system("PAUSE");
-
 	initialiser_bibliotheque(&bibli);
 
 	do
 	{
-	afficher_menu();
+		afficher_menu();
 
-	// Gestion du menu.
-	choix_menu = demander_choix_menu();
+		// Gestion du menu.
+		choix_menu = demander_choix_menu();
 
-	switch(choix_menu)
-	{
-	case 1: afficher_bibliotheque(&bibli); break;
-	case 2: lire_fichier(&bibli); break;
-	case 3: modifier_livre(&bibli); break;
-	case 4: retirer_livre(&bibli); break;
-	case 5: emprunter_livre(&bibli); break;
-	case 6: gerer_retours(&bibli); break;
-	case 7: generer_rapport(&bibli); break;
-	case 8: sauvegarder_fichier(&bibli); break;
-	case 9: trier_livres(&bibli); break;
-	case 0: break; // Quitter.
-	default: break;
-	}
+		switch (choix_menu)
+		{
+		case 1: afficher_bibliotheque(&bibli); break;
+		case 2: lire_fichier(&bibli); break;
+		case 3: modifier_livre(&bibli); break;
+		case 4: retirer_livre(&bibli); break;
+		case 5: emprunter_livre(&bibli); break;
+		case 6: gerer_retours(&bibli); break;
+		case 7: generer_rapport(&bibli); break;
+		case 8: sauvegarder_fichier(&bibli); break;
+		case 9: trier_livres(&bibli); break;
+		case 0: break; // Quitter.
+		default: break;
+		}
 
-	system("PAUSE");
-	system("cls");
+		super_pause();
+		system("cls");
 
-	}while(choix_menu != 0);
+	} while (choix_menu != 0);
 
 	return EXIT_SUCCESS;
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction lire_fichier
+// Cette fonction permet de remplir le tableau correspondant a la bibliotheque
+// a partir d'un fichier texte ou d'une simulation (en focntion de la valeur de
+// la constante SIMULATION)
+//
+// Parametres : pBibli = pointeur vers le tableau de t_bibliotheque a remplir
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void lire_fichier(t_bibliotheque * pBibli)
 {
 	FILE *fentree;
@@ -89,15 +111,19 @@ void lire_fichier(t_bibliotheque * pBibli)
 	// lors de l'utilisation de fgets et fscanf
 	char char1;
 
+	// Remplissage de la bibliotheque sans fichier texte
 #if(SIMULATION == 1)
 	simuler_lire_fichier(pBibli);
 
-	// ...
-
+	// Remplissage de la bibliotheque a partir d'un fichier texte
 #else
-	fentree = fopen("biblio.txt", "rt");
+	fentree = fopen(BIBLIO_FICHIER, "rt");
 	if (fentree == NULL)
+	{
 		printf("Erreur a l'ouverture du fichier\n");
+		super_pause();
+		exit(EXIT_FAILURE);
+	}
 	else
 	{
 		fscanf(fentree, "%d", &nb_livres);
@@ -115,37 +141,37 @@ void lire_fichier(t_bibliotheque * pBibli)
 			fscanf(fentree, "%d", &isbn);
 			fscanf(fentree, "%d", &emprunt);
 
+			// Enlever les sauts de lignes en trop a la fin des chaines
 			retirer_sautligne(titre);
 			retirer_sautligne(prenom);
 			retirer_sautligne(nom);
 
-			/*printf("%d\n", genre);
-			printf("%s\n", titre);
-			printf("%s ", prenom);
-			printf("%s\n", nom);
-			printf("%d\n", nb_pages);
-			printf("%d\n", isbn);
-			printf("%d\n", emprunt);*/
-
 			// Mise a jour d'un livre de la bibliotheque
-			pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].genre = genre;
-			strcpy(pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].titre, titre);
-			strcpy(pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].auteur_prenom, prenom);
-			strcpy(pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].auteur_nom, nom);
-			pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].nb_pages = nb_pages;
-			pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].isbn = isbn;
-			pBibli->livres[genre-1][pBibli->nb_livres[genre-1]].bEmprunte = emprunt;
-			pBibli->nb_livres[genre-1]++;
-		
+			pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].genre = genre;
+			strcpy(pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].titre, titre);
+			strcpy(pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].auteur_prenom, prenom);
+			strcpy(pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].auteur_nom, nom);
+			pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].nb_pages = nb_pages;
+			pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].isbn = isbn;
+			pBibli->livres[genre - 1][pBibli->nb_livres[genre - 1]].bEmprunte = emprunt;
+			pBibli->nb_livres[genre - 1]++;
+
 		}
 		printf("Livres charges\n");
 		fclose(fentree);
 	}
 #endif
-
-	// ...
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction simuler_lire_fichier
+// Cette fonction permet de remplir le tableau correspondant a la bibliotheque
+// sans avoir a passer par un fichier texte. Cette fonction est utilisee pour
+// le debug
+//
+// Parametres : pBibli = pointeur vers le tableau de t_bibliotheque a remplir
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void simuler_lire_fichier(t_bibliotheque * pBibli)
 {
 	t_livre livre1;
@@ -183,12 +209,27 @@ void simuler_lire_fichier(t_bibliotheque * pBibli)
 	pBibli->nb_livres[FICTION]++;
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction super_pause
+// Cette fonction permet de faire une pause apres que l'utilisateur ai fait un
+// choix dans le menu.
+//
+// Parametres : aucun
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void super_pause()
 {
 	printf("Appuyez sur une touche pour continuer! \n");
 	_getch();
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction retirer_sautligne
+// Cette fonction permet d'enlever un saut de ligne d'une chaine de caracteres
+//
+// Parametres : chaine = pointeur vers la chaine dans laquelle on enleve le saut 
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void retirer_sautligne(char * chaine)
 {
 	int pos = strlen(chaine) - 1;
@@ -230,6 +271,14 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 	initialiser_rapport(&(pBibli->rapport));
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction demander_choix_menu
+// Cette fonction permet de saisir le choix entre par l'utilisateur et de
+// verifier sa validite.
+//
+// Parametres : aucun
+// Retour :		choix = valeur entree par l'utilisateur
+//-----------------------------------------------------------------------------
 int demander_choix_menu()
 {
 	int choix;
@@ -275,6 +324,13 @@ void initialiser_rapport(t_rapport * pRapport)
 	pRapport->nb_livres_empruntes = 0;
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction afficher_info_livre
+// Cette fonction affiche dans la console toutes les informations d'un livre
+//
+// Parametres : pLivre = pointeur vers le t_livre que l'on veut afficher
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void afficher_info_livre(t_livre * pLivre)
 {
 	printf("-------------------------------------------------------------------");
@@ -292,6 +348,16 @@ void afficher_info_livre(t_livre * pLivre)
 	printf("\n");
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction modifier_livre
+// Cette fonction permet de modifier tous les champs d'un livre de la 
+// bibliotheque choisi par l'utilisateur sauf son numero isbn.
+// Les informations sont entrees par l'utilisateur.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle se trouve 
+//						 le livre
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void modifier_livre(t_bibliotheque * pBibli)
 {
 	// Caractere permettant d'enlever le enter a la saisie du titre
@@ -341,23 +407,31 @@ void modifier_livre(t_bibliotheque * pBibli)
 		livre_modifie.isbn = isbn;
 
 		// Ranger le livre au bon endroit dans la bibliotheque
-		pBibli->livres[genre_livre - 1][pBibli->nb_livres[genre_livre - 1]] = 
+		pBibli->livres[genre_livre - 1][pBibli->nb_livres[genre_livre - 1]] =
 			livre_modifie;
 
 		// Actualiser compteur genre
 		pBibli->nb_livres[genre_livre - 1]++;
 
-		printf("Vous avez modifie le livre de numero isbn %d\n",isbn);
+		printf("Vous avez modifie le livre de numero isbn %d\n", isbn);
 	}
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction retirer_livre
+// Cette fonction permet de retirer un livre de la bibliotheque definitivement
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle se trouve 
+//						 le livre a enlever
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void retirer_livre(t_bibliotheque * pBibli)
 {
 	int isbn;
 	int i, j;
 
 	printf("Entrez le numero isbn du livre a retirer : \n");
-	scanf("%d",&isbn);
+	scanf("%d", &isbn);
 
 	for (i = 0; i < NB_GENRES; i++)
 	{
@@ -372,42 +446,29 @@ void retirer_livre(t_bibliotheque * pBibli)
 	printf("Vous avez retire le livre de numero isbn %d\n", isbn);
 }
 
-void ranger_bibliotheque(t_bibliotheque * pBibli)
-{
-	int i, j;
-	int genre_livre;
-	int nb_genre;
-
-	for (i = 0; i < NB_GENRES; i++)
-	{
-		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
-		{
-			genre_livre = pBibli->livres[i][j].genre;
-			nb_genre = pBibli->nb_livres[genre_livre - 1];
-
-			if (genre_livre != i+1)
-			{
-				pBibli->livres[genre_livre - 1][nb_genre] = pBibli->livres[i][j];
-				initialiser_livre(&pBibli->livres[i][j]);
-			}
-		}
-	}
-}
-
+//-----------------------------------------------------------------------------
+//							Fonction sauvegarder_fichier
+// Cette fonction permet de sauvegarder la bibliotheque actuelle dans un
+// nouveau fichier texte nomme "sauvegarde_bibliotheque.txt".
+//
+// Parametres : pBibli = pointeur vers la bibliotheque a sauvegarder
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void sauvegarder_fichier(t_bibliotheque * pBibli)
 {
 
-	FILE * sauvegarde = fopen("sauvegarde_bibliotheque.txt","wt");
-	int i,j;
+	FILE * sauvegarde = fopen(BIBLIO_SAUVEGARDE, "wt");
+	int i, j;
 	int nb_total_livres = compter_livres(pBibli);
 
-	if(sauvegarde == NULL)
+	if (sauvegarde == NULL)
 	{
 		printf("Erreur a l'ouverture du fichier de sauvegarde");
+		super_pause();
 		exit(EXIT_FAILURE);
 	}
 
-	fprintf(sauvegarde,"%d\n\n",nb_total_livres);
+	fprintf(sauvegarde, "%d\n\n", nb_total_livres);
 
 	for (i = 0; i < NB_GENRES; i++)
 	{
@@ -415,13 +476,13 @@ void sauvegarder_fichier(t_bibliotheque * pBibli)
 		{
 			if (pBibli->livres[i][j].isbn != -1)
 			{
-				fprintf(sauvegarde,"%d\n",pBibli->livres[i][j].genre);
-				fprintf(sauvegarde,"%s\n",pBibli->livres[i][j].titre);
-				fprintf(sauvegarde,"%s\n",pBibli->livres[i][j].auteur_prenom);
-				fprintf(sauvegarde,"%s\n",pBibli->livres[i][j].auteur_nom);
-				fprintf(sauvegarde,"%d\n",pBibli->livres[i][j].nb_pages);
-				fprintf(sauvegarde,"%d\n",pBibli->livres[i][j].isbn);
-				fprintf(sauvegarde,"%d\n\n",pBibli->livres[i][j].bEmprunte);
+				fprintf(sauvegarde, "%d\n", pBibli->livres[i][j].genre);
+				fprintf(sauvegarde, "%s\n", pBibli->livres[i][j].titre);
+				fprintf(sauvegarde, "%s\n", pBibli->livres[i][j].auteur_prenom);
+				fprintf(sauvegarde, "%s\n", pBibli->livres[i][j].auteur_nom);
+				fprintf(sauvegarde, "%d\n", pBibli->livres[i][j].nb_pages);
+				fprintf(sauvegarde, "%d\n", pBibli->livres[i][j].isbn);
+				fprintf(sauvegarde, "%d\n\n", pBibli->livres[i][j].bEmprunte);
 			}
 		}
 	}
@@ -429,11 +490,82 @@ void sauvegarder_fichier(t_bibliotheque * pBibli)
 	fclose(sauvegarde);
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction trier_livres
+// Cette fonction permet de trier les livres d'un meme genre par nombre de 
+// pages. 
+//
+// Parametres : pBibli = pointeur vers la bibliotheque a trier
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void trier_livres(t_bibliotheque * pBibli)
 {
+	int i;
+	int choix_user;
 
+	printf("********************************************\n");
+	printf("Choisir le mode de tri : \n");
+	printf("1 - Tri par nombre de pages croissant\n");
+	printf("2 - Tri par numero isbn croissant\n");
+	printf("3 - Tri par ordre alphabetique (nom auteur)\n");
+	printf("4 - Tri par longueur du titre croissante\n");
+	printf("********************************************\n");
+
+	do
+	{
+		scanf("%d", &choix_user);
+	} while (choix_user < NB_CHOIX_TRI_MIN || choix_user > NB_CHOIX_TRI_MAX);
+
+
+	if (choix_user == 1)
+	{
+		// Tri de chaque ligne du tableau de livres en fonction du nombre de pages
+		for (i = 0; i < NB_GENRES; i++)
+		{
+			qsort((void *)pBibli->livres[i], pBibli->nb_livres[i],
+				sizeof(t_livre), cmp_nbPages);
+		}
+		printf("Les livres ont ete tries par nombre de page croissant !\n");
+	}
+	else if (choix_user == 2)
+	{
+		// Tri de chaque ligne du tableau de livres en fonction du numero isbn
+		for (i = 0; i < NB_GENRES; i++)
+		{
+			qsort((void *)pBibli->livres[i], pBibli->nb_livres[i],
+				sizeof(t_livre), cmp_isbn);
+		}
+		printf("Les livres ont ete tries par numero isbn croissant !\n");
+	}
+	else if (choix_user == 3)
+	{
+		// Tri de chaque ligne du tableau de livres en fonction nom de l'auteur
+		for (i = 0; i < NB_GENRES; i++)
+		{
+			qsort((void *)pBibli->livres[i], pBibli->nb_livres[i],
+				sizeof(t_livre), cmp_nomAuteur);
+		}
+	}
+	else if (choix_user == 4)
+	{
+		// Tri de chaque ligne du tableau de livres en fonction de la 
+		// longueur du titre
+		for (i = 0; i < NB_GENRES; i++)
+		{
+			qsort((void *)pBibli->livres[i], pBibli->nb_livres[i],
+				sizeof(t_livre), cmp_longueurTitre);
+		}
+	}
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction compter_livres
+// Cette fonction permet de compter le nombre de livres de la bibliotheque
+// passee en argument.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle compter
+// Retour :		nb_livres = nombre de livres dans la bibliotheque
+//-----------------------------------------------------------------------------
 int compter_livres(t_bibliotheque * pBibli)
 {
 	int i, j;
@@ -452,6 +584,14 @@ int compter_livres(t_bibliotheque * pBibli)
 	return nb_livres;
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction afficher_bibliotheque
+// Cette fonction permet d'afficher tout les livres de la bibliotheque passee
+// en argument.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque a afficher
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void afficher_bibliotheque(t_bibliotheque * pBibli)
 {
 	int i, j;
@@ -467,6 +607,16 @@ void afficher_bibliotheque(t_bibliotheque * pBibli)
 	}
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction generer_rapport
+// Cette fonction permet de generer et afficher le rapport. Le rapport contient
+// le nombre de livres de la bibliotheque passee en argument et le nombre de 
+// livres empruntes.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle on veut 
+//						 faire le rapport
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void generer_rapport(t_bibliotheque *pBibli)
 {
 	int i, j;
@@ -477,7 +627,7 @@ void generer_rapport(t_bibliotheque *pBibli)
 	{
 		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
 		{
-			if (pBibli->livres[i][j].bEmprunte != 0)
+			if (pBibli->livres[i][j].bEmprunte != DISPONIBLE)
 			{
 				nb_livres_empruntes++;
 			}
@@ -487,12 +637,21 @@ void generer_rapport(t_bibliotheque *pBibli)
 			}
 		}
 	}
+
+	// actualisation des valeurs du rapport avec les nouvelles valeurs
 	pBibli->rapport.nb_livres_empruntes = nb_livres_empruntes;
 	pBibli->rapport.nb_livres = nb_livres;
 
 	afficher_rapport(&pBibli->rapport);
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction afficher_rapport
+// Cette fonction permet d'afficher le rapport passe en argument.
+//
+// Parametres : rapport = pointeur vers le rapport a afficher
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void afficher_rapport(t_rapport *rapport)
 {
 	printf("#####################################\n");
@@ -501,11 +660,22 @@ void afficher_rapport(t_rapport *rapport)
 	printf("#####################################\n");
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction emprunter_livre
+// Cette fonction permet d'emprunter un livre de la bibliotheque passee en 
+// argument. La fonction demande le numero isbn du livre que l'utilisateur veut 
+// emprunter puis modifie l'indicateur d'emprunt de ce livre (il passe a 1).
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle on veut 
+//						 emprunter le livre
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void emprunter_livre(t_bibliotheque * pBibli)
 {
 	int isbn;
 	int i, j;
 
+	// Recherche du livre que l'on veut emprunter
 	printf("Entrez le numero isbn du livre a emprunter : \n");
 	scanf("%d", &isbn);
 
@@ -515,18 +685,99 @@ void emprunter_livre(t_bibliotheque * pBibli)
 		{
 			if (pBibli->livres[i][j].isbn == isbn)
 			{
-				pBibli->livres[i][j].bEmprunte = 1;
+				// On indique que ce livre est emprunte
+				pBibli->livres[i][j].bEmprunte = EMPRUNT;
 			}
 		}
 	}
 	printf("Vous avez emprunte le livre de numero isbn %d\n", isbn);
 }
 
-void gerer_retours(t_bibliotheque * pBibli)
+//-----------------------------------------------------------------------------
+//							Fonction gerer_lundi_matin_retours
+// Cette fonction permet d'empiler les livres empruntes dans une pile de retours.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle les livres 
+//						 ont ete empruntes
+//				pPileRetours = pointeur vers la pile dans laquelle vont etre 
+//							   stockes les livres retournes			
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void gerer_lundi_matin_retours(t_bibliotheque*pBibli, t_pile *pPileRetours)
 {
+	int i, j;
 
+	for (i = 0; i < NB_GENRES; i++)
+	{
+		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		{
+			if (pBibli->livres[i][j].bEmprunte == EMPRUNT && !est_pleine(pPileRetours))
+			{
+				empile(pPileRetours, pBibli->livres[i][j]);
+			}
+		}
+	}
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction retourner_livres
+// Cette fonction permet de vider la pile de retours et de modifier les 
+// indicateur d'emprunt des livres (on les met a 0) pour indiquer qu'ils ne 
+// sont plus empruntes.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle les livres 
+//						 ont ete empruntes
+//				pPileRetours = pointeur vers la pile a vider	
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void retourner_livres(t_bibliotheque * pBibli, t_pile * pPileRetours)
+{
+	t_livre livre_rendu;
+	t_genre genre;
+	initialiser_livre(&livre_rendu);
+	int i;
+
+	while (!est_vide(pPileRetours))
+	{
+		livre_rendu = desempile(pPileRetours);
+		genre = livre_rendu.genre;
+
+		for (i = 0; i < NB_LIVRES_MAX_RANGEE; i++)
+		{
+			if (livre_rendu.isbn == pBibli->livres[genre - 1][i].isbn)
+			{
+				pBibli->livres[genre - 1][i].bEmprunte = DISPONIBLE;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction gerer_retours
+// Cette fonction permet de gerer les retours en stockant les livres retournes
+// dans une pile puis en vidant cette pile et en indiquant que les livres sont
+// disponibles.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle les livres 
+//						 ont ete empruntes		
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void gerer_retours(t_bibliotheque * pBibli)
+{
+	t_pile pile_retours;
+	init_pile(&pile_retours);
+
+	gerer_lundi_matin_retours(pBibli, &pile_retours);
+	retourner_livres(pBibli, &pile_retours);
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction afficher_menu
+// Cette fonction permet d'afficher le menu de la bibliotheque dans la console.
+//
+// Parametres : aucun	
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void afficher_menu()
 {
 	printf("================================================================");
@@ -546,4 +797,75 @@ void afficher_menu()
 	printf("0 - Quitter\n");
 	printf("================================================================");
 	printf("=============\n");
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction cmp_nbPages
+// Cette fonction permet de comparer le nombre de pages de 2 livres
+// La fonction renvoie -1 si l'element 1 a moins de pages que l'element 2 
+// La fonction renvoie 0 si l'element 1 a autant de pages que l'element 2
+// La fonction renvoie 1 si l'element 1 a plus de pages que l'element 2 
+//
+// Parametres : aucun	
+// Retour :		resultat de la comparaison
+// Code inspire de la fonction de comparaison ecrite par Hugues Saulnier
+//-----------------------------------------------------------------------------
+int cmp_nbPages(const void*el_1, const void *el_2)
+{
+	if (((t_livre *)el_1)->nb_pages < ((t_livre *)el_2)->nb_pages) return -1;
+	if (((t_livre *)el_1)->nb_pages == ((t_livre *)el_2)->nb_pages) return 0;
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction cmp_isbn
+// Cette fonction permet de comparer le numero isbn de 2 livres
+// La fonction renvoie -1 si isbn_1 < isbn_2 
+// La fonction renvoie 0 si isbn_1 = isbn_2 
+// La fonction renvoie 1 si isbn_1 > isbn_2
+//
+// Parametres : aucun	
+// Retour :		resultat de la comparaison
+// Code inspire de la fonction de comparaison ecrite par Hugues Saulnier
+//-----------------------------------------------------------------------------
+int cmp_isbn(const void*el_1, const void *el_2)
+{
+	if (((t_livre *)el_1)->isbn < ((t_livre *)el_2)->isbn) return -1;
+	if (((t_livre *)el_1)->isbn == ((t_livre *)el_2)->isbn) return 0;
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction cmp_nomAuteur
+// Cette fonction permet de comparer le nom des auteurs de 2 livres
+// La fonction renvoie -1 si nom_1 < nom_2 
+// La fonction renvoie 0 si nom_1 = nom_2 
+// La fonction renvoie 1 si nom_1 > nom_2
+// La comparaison est evaluee par rapport a l'ordre alphabetique ("A" < "B")
+//
+// Parametres : aucun	
+// Retour :		resultat de la comparaison
+// Code inspire de la fonction de comparaison ecrite par Hugues Saulnier
+//-----------------------------------------------------------------------------
+int cmp_nomAuteur(const void*el_1, const void *el_2)
+{
+	return strcmp(((t_livre *)el_1)->auteur_nom, ((t_livre *)el_2)->auteur_nom);
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction cmp_isbn
+// Cette fonction permet de comparer la longueur du titre de 2 livres
+// La fonction renvoie -1 si titre_1 < titre_2
+// La fonction renvoie 0 si titre_1 = titre_2
+// La fonction renvoie 1 si titre_1 > titre_2
+//
+// Parametres : aucun	
+// Retour :		resultat de la comparaison
+// Code inspire de la fonction de comparaison ecrite par Hugues Saulnier
+//-----------------------------------------------------------------------------
+int cmp_longueurTitre(const void*el_1, const void *el_2)
+{
+	if (strlen(((t_livre *)el_1)->titre) < strlen(((t_livre *)el_2)->titre)) return -1;
+	if (strlen(((t_livre *)el_1)->titre) == strlen(((t_livre *)el_2)->titre)) return 0;
+	return 1;
 }
