@@ -5,22 +5,22 @@
 
 #define NB_LIVRES_MAX_RANGEE        100
 #define NB_GENRES                   6
-#define BIBLIO_FICHIER				"biblio.txt"
-#define BIBLIO_SAUVEGARDE			"sauvegarde_bibliotheque.txt"
+#define BIBLIO_FICHIER		    "biblio.txt"
+#define BIBLIO_SAUVEGARDE	    "sauvegarde_bibliotheque.txt"
 
 #define TAILLE_TITRE	80
-#define TAILLE_NOM		30	
+#define TAILLE_NOM	30	
 #define TAILLE_PRENOM	30
 
-#define MAX_ISBN		9999
+#define MAX_ISBN	9999
 
 #define SIMULATION      0
 
 #define EMPRUNT         1
 #define DISPONIBLE      0
 
-#define NB_CHOIX_TRI_MIN			1
-#define NB_CHOIX_TRI_MAX			4
+#define NB_CHOIX_TRI_MIN	1
+#define NB_CHOIX_TRI_MAX	4
 
 typedef struct
 {
